@@ -12,29 +12,44 @@ from selenium.webdriver.common.keys import Keys
 
 
 def sync(dataset_name):
-# Download dataset geojsos and extract URL of umap map
+  # Attende di accedere alla dashboard	
+  driver.find_element(By.PARTIAL_LINK_TEXT, "Dashboard") # Attende di accedere alla dashboard
+  print(f"Sincronizzo {dataset_name}") 
+  # Download dataset geojsos and extract URL of umap map
   with urlopen(f"https://raw.githubusercontent.com/prin-underlandscape/{dataset_name}/main/{dataset_name}.geojson") as content:
     umap_url = json.load(content)["properties"]["umapKey"]
-# Download umap and store as a file to be uploaded to umap service 
+  print(f"Scarico il file umap da {umap_url}") 
+  # Scarica il file umap e lo memorizza localmente 
   urlretrieve(f"https://raw.githubusercontent.com/prin-underlandscape/{dataset_name}/main/{dataset_name}.umap",'./dataset.umap')
-  print(f"Syncing {umap_url}") 
-  driver.find_element(By.PARTIAL_LINK_TEXT, "Dashboard")
+  # Accede alla mappa umap online
   driver.get(umap_url)
+  # Attende l'abilitazione della modifica della mappa e la seleziona
   driver.find_element(By.CSS_SELECTOR, ".leaflet-control-edit-enable > button").click()
+  # Preme il bottone rotella per modificare le impostazioni della mappa
   driver.find_element(By.CSS_SELECTOR, ".update-map-settings").click()
+  # Preme "Azioni avanzate"
   driver.find_element(By.CSS_SELECTOR, "details:nth-child(11) > summary").click()
+  # Preme "Vuota"
   driver.find_element(By.CSS_SELECTOR, ".umap-empty:nth-child(2)").click()
+  # Chiude il pannello "Rotella"
   driver.find_element(By.CSS_SELECTOR, ".buttons:nth-child(1) .icon-close").click()
+  # Seleziona il tasto di caricamento "Freccia in alto"
   driver.find_element(By.CSS_SELECTOR, ".upload-data").click()
-
+  # Carica i dati (ma si potrebbero anche copiare direttamente nel textbox
+  # senza memorizzarlo in un file
   upload_file = os.path.abspath("./dataset.umap")
   file_input = driver.find_element(By.CSS_SELECTOR, "input[type='file']")
   file_input.send_keys(upload_file)
+  # Preme pulsante di importazione
   driver.find_element(By.NAME, "submit").click()
+  # Chiude il pannello di caricamento
   driver.find_element(By.CSS_SELECTOR, ".buttons:nth-child(1) .icon-close").click()
+  # Salva la nuova mappa
   driver.find_element(By.CSS_SELECTOR, ".leaflet-control-edit-save").click()
-  print("ecco")
-
+  # Chiude il pannello di editing (importante: aspettando che il salvataggio termini)
+  driver.find_element(By.CSS_SELECTOR, ".leaflet-control-edit-disable").click()
+  print("=== Concluso")
+  # Attesa per consentire all'operatore di osservare il risultato
   time.sleep(10)	
 
 if len(sys.argv) < 2:
@@ -49,5 +64,9 @@ driver.implicitly_wait(60) # useful to wait for login
 driver.get("https://umap.openstreetmap.fr/it/login/")
 
 for dataset in sys.argv[1:]:
-  print(f"Sincronizzo il dataset {dataset}")
-  sync(dataset.split('.')[0])
+  try:
+    print(f"Sincronizzo il dataset {dataset}")
+    sync(dataset.split('.')[0])
+  except Exception as error:
+    print("C'è stato un problema:", error)
+	 
