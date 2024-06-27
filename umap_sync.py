@@ -48,4 +48,6 @@ driver.implicitly_wait(60) # useful to wait for login
 # Start from login page
 driver.get("https://umap.openstreetmap.fr/it/login/")
 
-sync(sys.argv[1])
+for dataset in sys.argv[1:]:
+  print(f"Sincronizzo il dataset {dataset}")
+  sync(dataset.split('.')[0])
