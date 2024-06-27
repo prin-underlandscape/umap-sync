@@ -6,12 +6,12 @@ import getpass
 from urllib.request import urlretrieve, urlopen
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions
+
+
 
 # Browser configuration
 chrome_service = Service(executable_path='/snap/chromium/2890/usr/lib/chromium-browser/chromedriver')
@@ -20,7 +20,6 @@ driver.set_window_size(1600,900)
 driver.implicitly_wait(60) # useful to wait for login
 # Start from login page
 driver.get("https://umap.openstreetmap.fr/it/login/")
-
 
 dataset_name="Fase1-240214-AiolaSanGiorgio"
 # Download dataset geojsos and extract URL of umap map
