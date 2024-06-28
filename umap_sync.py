@@ -1,8 +1,9 @@
-#!/usr/bin/python3
+import os, sys
 import pytest
 import time
 import json
 import os, sys
+from os.path import basename, splitext
 from urllib.request import urlretrieve, urlopen
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -51,10 +52,13 @@ def sync(dataset_name):
   driver.find_element(By.CSS_SELECTOR, ".leaflet-control-edit-disable").click()
   print("=== Concluso")
   # Attesa per consentire all'operatore di osservare il risultato
-  time.sleep(10)	
+  time.sleep(10)
+  driver.get("https://umap.openstreetmap.fr/")	
 
 if len(sys.argv) < 2:
   exit("Bisogna passare i dataset da sincronizzare")
+
+print("Ecco")
 
 # Browser configuration
 chrome_service = Service(executable_path='/snap/chromium/2890/usr/lib/chromium-browser/chromedriver')
@@ -64,10 +68,10 @@ driver.implicitly_wait(60) # useful to wait for login
 # Start from login page
 driver.get("https://umap.openstreetmap.fr/it/login/")
 
-for dataset in sys.argv[1:]:
+for fn in sys.argv[1:]:
   try:
-    print(f"Sincronizzo il dataset {dataset}")
-    sync(dataset.split('.')[0])
+    dataset = splitext(basename(fn))[0]
+    sync(dataset)
   except Exception as error:
     print("C'è stato un problema:", error)
 	 
